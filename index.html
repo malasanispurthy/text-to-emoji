@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emotion to Emoji</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .header { text-align: center; margin-bottom: 32px; }
+    .logo { font-size: 64px; margin-bottom: 16px; animation: bounce 2s ease-in-out infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    h1 {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #a855f7, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
+    .input-group { margin-bottom: 20px; }
+    textarea {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 16px;
+      font-family: inherit;
+      resize: none;
+      transition: all 0.3s ease;
+      min-height: 100px;
+    }
+    textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
+    textarea:focus { outline: none; border-color: #a855f7; background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .chip { padding: 8px 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 100px; color: rgba(255, 255, 255, 0.8); font-size: 13px; cursor: pointer; transition: all 0.2s ease; }
+    .chip:hover { background: rgba(168, 85, 247, 0.3); border-color: #a855f7; transform: translateY(-2px); }
+    .buttons { display: flex; gap: 12px; }
+    .btn { flex: 1; padding: 14px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #a855f7 0%, #06b6d4 100%); color: #fff; box-shadow: 0 10px 20px -10px rgba(168, 85, 247, 0.5); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px -10px rgba(168, 85, 247, 0.6); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+    .loading { text-align: center; padding: 20px; color: rgba(255, 255, 255, 0.6); display: none; }
+    .loading.show { display: block; }
+    .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(255, 255, 255, 0.2); border-top-color: #a855f7; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .result { margin-top: 24px; padding: 24px; background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); display: none; animation: slideUp 0.4s ease; }
+    .result.show { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .result-content { display: flex; align-items: center; gap: 20px; }
+    .result-emoji { font-size: 72px; animation: pop 0.4s ease; }
+    @keyframes pop { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .result-info { flex: 1; }
+    .result-label { font-size: 24px; font-weight: 700; color: #fff; text-transform: capitalize; margin-bottom: 4px; }
+    .result-source { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+    .footer { text-align: center; margin-top: 24px; color: rgba(255, 255, 255, 0.4); font-size: 12px; }
+    .error { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 12px 16px; border-radius: 12px; margin-top: 16px; display: none; font-size: 14px; }
+    .error.show { display: block; }
+    @media (max-width: 480px) { .container { padding: 24px; } .logo { font-size: 48px; } h1 { font-size: 22px; } .result-emoji { font-size: 56px; } .result-label { font-size: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">😊</div>
+      <h1>Emotion to Emoji</h1>
+      <p class="subtitle">Enter a sentence and discover its emotion</p>
+    </div>
+    <div class="input-group">
+      <textarea id="text" placeholder="Type something like 'I am so happy today!'"></textarea>
+    </div>
+    <div class="chips">
+      <button class="chip" data-text="I am so happy today!">😀 Happy</button>
+      <button class="chip" data-text="This makes me really sad">😢 Sad</button>
+      <button class="chip" data-text="I'm so angry right now">😠 Angry</button>
+      <button class="chip" data-text="I'm scared and nervous">😨 Fear</button>
+      <button class="chip" data-text="Wow, what a surprise!">😲 Surprise</button>
+      <button class="chip" data-text="I love this so much">😍 Love</button>
+    </div>
+    <div class="buttons">
+      <button class="btn btn-primary" id="predict">✨ Predict Emotion</button>
+      <button class="btn btn-secondary" id="clear">Clear</button>
+    </div>
+    <div class="loading" id="loading"><span class="spinner"></span> Analyzing emotion...</div>
+    <div class="error" id="error"></div>
+    <div class="result" id="result">
+      <div class="result-content">
+        <div class="result-emoji" id="emoji">😀</div>
+        <div class="result-info">
+          <div class="result-label" id="label">Joy</div>
+          <div class="result-source" id="source">Predicted by AI model</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">Powered by TF-IDF + Logistic Regression</div>
+  </div>
+  <script>
+    const textarea = document.getElementById('text');
+    const predictBtn = document.getElementById('predict');
+    const clearBtn = document.getElementById('clear');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+    const emojiEl = document.getElementById('emoji');
+    const labelEl = document.getElementById('label');
+    const sourceEl = document.getElementById('source');
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => { textarea.value = chip.dataset.text; textarea.focus(); });
+    });
+    clearBtn.addEventListener('click', () => { textarea.value = ''; result.classList.remove('show'); errorDiv.classList.remove('show'); textarea.focus(); });
+    function localPredict(text) {
+      const t = text.toLowerCase();
+      if (/\b(happy|joy|glad|thrill|excited|great|amazing|wonderful)\b/.test(t)) return ['joy', '😀'];
+      if (/\b(sad|tear|depress|unhappy|miserable|cry|heartbroken)\b/.test(t)) return ['sadness', '😢'];
+      if (/\b(angry|furious|mad|rage|hate|annoyed|frustrated)\b/.test(t)) return ['anger', '😠'];
+      if (/\b(scared|fear|terrified|nervous|anxious|worried)\b/.test(t)) return ['fear', '😨'];
+      if (/\b(surprise|surprised|wow|shock|unexpected|astonish)\b/.test(t)) return ['surprise', '😲'];
+      if (/\b(love|adore|cherish|affection|romantic)\b/.test(t)) return ['love', '😍'];
+      return ['neutral', '😐'];
+    }
+    async function predict() {
+      const text = textarea.value.trim();
+      if (!text) { errorDiv.textContent = 'Please enter some text first.'; errorDiv.classList.add('show'); return; }
+      errorDiv.classList.remove('show');
+      result.classList.remove('show');
+      loading.classList.add('show');
+      try {
+        const response = await fetch('/predict', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text }) });
+        if (!response.ok) throw new Error('Server error');
+        const data = await response.json();
+        showResult(data.label, data.emoji, 'Predicted by AI model');
+      } catch (err) {
+        const [label, emoji] = localPredict(text);
+        showResult(label, emoji, 'Local fallback (server unavailable)');
+      } finally { loading.classList.remove('show'); }
+    }
+    function showResult(label, emoji, source) {
+      labelEl.textContent = label;
+      emojiEl.textContent = emoji;
+      sourceEl.textContent = source;
+      result.classList.add('show');
+    }
+    predictBtn.addEventListener('click', predict);
+    textarea.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); predict(); } });
+  </script>
+</body>
+</html>

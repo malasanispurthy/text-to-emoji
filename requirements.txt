@@ -1,0 +1,8 @@
+scikit-learn>=1.0
+joblib
+pytest
+fastapi
+uvicorn
+requests
+aiofiles
+httpx
